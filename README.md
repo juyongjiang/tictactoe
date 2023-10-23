@@ -6,7 +6,21 @@ You can access our Tic-Tac-Toe Tournament platform at [https://tictactoe-john.st
 
 Implement the `def next_move(board)` function which represents how to generate the next best position to win the game in Python and upload it to our platform. For example,
 ```python
+### we will pass board (3x3 list)
+# 0: nothing
+# 1: X (letter X)
+# 2: Y (letter Y)
+#
+# You need to return x, y
 
+def next_move(board):
+    import random
+    while True:
+        x = random.randint(0, 2)
+        y = random.randint(0, 2)
+        if board[x][y] == 0:
+            return x, y
+    return 0, 0
 ```
 ### Step 2: Play Game
 

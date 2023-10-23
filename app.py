@@ -70,7 +70,6 @@ st.write("We have {} student codes.".format(len(student_records)))
 st.markdown("### Participants")
 for record in student_records:
     st.markdown("- {}".format(record[0]))  # record[0] is student_id
-    st.markdown(f"{record[1]}")
     
 if len(student_records) < 2:
     st.warning("Need at least two student codes to start the tournament.")
