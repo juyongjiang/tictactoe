@@ -6,7 +6,6 @@ import base64
 from db_util import db_execute_query, db_select_query
 from code_util import execute_code
 
-PASS_CODE = "1234" 
 
 def find_winner(board):
     for i in range(3):
