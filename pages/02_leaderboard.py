@@ -64,7 +64,7 @@ def random_board(board):
                  board[random_stone[0]][random_stone[1]] = 0 
     return board
 
-st.title(":trophy: TTT Leadboard")
+st.title(":trophy: TTT Leaderboard")
 
 student_records = db_select_query("SELECT * FROM students")
 random.shuffle(student_records) # to avoid the effect of game order
