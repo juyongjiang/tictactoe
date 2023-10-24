@@ -15,7 +15,7 @@ def db_execute_query(query, params=None, database_name=DATABASE_NAME):
         conn = sqlite3.connect(database_name)
         c = conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS students
-                (student_id text, code text, score integer)''')
+                (student_id text, code text, win integer, lose integer, password text)''')
         # Execute query with parameters and commit changes
         if params:
             c.execute(query, params)
@@ -57,17 +57,3 @@ def db_select_query(query, params=None, database_name=DATABASE_NAME):
         if conn:
             conn.close()
     return rows
-
-# Sample usage of the db_util functions
-if __name__ == '__main__':
-    execute_query('''CREATE TABLE IF NOT EXISTS students
-                (student_id text, code text, score integer)''')
-
-    # Insert a student record
-    execute_query('''INSERT INTO students (student_id, code, score) VALUES
-                ('123', 'XYZ', 90)''')
-
-    # Select records
-    rows = select_query("SELECT * FROM students")
-    for row in rows:
-        print(row)

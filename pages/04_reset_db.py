@@ -1,16 +1,30 @@
 import streamlit as st
-from db_util import db_execute_query
+from db_util import db_select_query, db_execute_query
 
-PASS_CODE = "1234"
+admin = ['John', 'Sung', 'Jack']
 
 st.title("Reset Database")
-st.write("Please enter the passcode to reset the database.")
+st.warning(":cop: Only admin has permission to reset the database:exclamation::exclamation::exclamation:")
 
-passcode = st.text_input("Passcode:", type="password")
+cols = st.columns(2)
+with cols[0]:
+    student_id = st.text_input("Student ID:", key="student_id")
+with cols[1]:
+    passcode = st.text_input("Password:", type="password", key="password")
 
 if st.button("Delete All Records"):
-    if passcode == PASS_CODE:
-        db_execute_query("DELETE FROM students")
-        st.success("Database reset successfully!")
+    if not student_id:
+        st.error("Student ID cannot be empty.")
+        st.stop()
+    if not passcode:
+        st.error("Password cannot be empty.")
+        st.stop()
+    student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
+    if len(student_data) != 0 and student_id in admin:
+        if passcode == student_data[4]:
+            db_execute_query("DELETE FROM students")
+            st.success("Database reset successfully!")
+        else:
+            st.error("Incorrect passcode, please try again!")
     else:
-        st.error("Incorrect passcode, please try again!")
+        st.error("Permission denied!")
