@@ -9,7 +9,7 @@ Implement the `def next_move(board)` function which represents how to generate t
 ### we will pass board (3x3 list)
 # 0: nothing
 # 1: X (letter X)
-# 2: Y (letter Y)
+# 2: O (letter O)
 #
 # You need to return x, y
 
