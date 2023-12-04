@@ -5,7 +5,9 @@ from db_util import db_execute_query, db_select_query
 
 
 st.title("Upload Code")
-st.info(":computer: Please enter your student ID and implement next_move(board) strategy that returns x, y below.")
+st.info(":computer: Please enter your student ID, password (initialized for the first time, after that, if you forget your password, please contact admin :cop: ), \
+    and complete \"next_move(board)\" strategy that returns x, y (the position of your next piece).\
+    In other words, your goal is to let \"Play 1 (You) :partying_face:\" win the game.")
 
 cols = st.columns(2)
 with cols[0]:
@@ -24,19 +26,23 @@ student_code = st_ace(
     keybinding="vscode",
     show_gutter=True,
     placeholder="Write your python code here...",
-    value="""### we will pass board (3x3 list)
-#     1   2   3
-#   +---+---+---+
-# 0 |   | X |   |
-#   +---+---+---+
-# 1 | X | O | X |
-#   +---+---+---+
-# 2 | O |   | O |
-#   +---+---+---+
-# 0: nothing
-# 1: X (letter X)
-# 2: Y (letter Y)
-# You need to return x, y
+    value="""### Input an board (3x3 list) as function argument, 
+# for example:
+# board = [[0, 1, 0], [0, 0, 2], [0, 0, 0]], visualized as:
+#  +---+---+---+
+#  | 0 | 1 | 0 |
+#  +---+---+---+
+#  | 0 | 0 | 2 |
+#  +---+---+---+
+#  | 0 | 0 | 0 |
+#  +---+---+---+
+# 0: Empty
+# 1: Piece of Play 1 (You)
+# 2: Piece of Play 2 (Opponent)
+# You need to complete the following function to return x, y, 
+# which represents the position of next piece you place on the board.
+# Don't place piece in the position that has been occupied, 
+# otherwise, you will lost the game.
 
 def next_move(board):\n
     return 0, 0
@@ -45,7 +51,7 @@ def next_move(board):\n
 
 basic_code = """
 board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-x, y = next_move(board)
+x, y = next_move(board) # x, y can't be tuple, must be int
 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
@@ -54,6 +60,9 @@ assert y >= 0 and y <= 2
 if st.button("Upload Code"):
     if not student_id:
         st.error("Student ID cannot be empty.")
+        st.stop()
+    if student_id not in {'Sung', 'John', 'Jack'} and student_id.isdigit() and len(student_id) == 8:
+        st.error("Student ID must be an 8-digit number!")
         st.stop()
     if not passcode:
         st.error("Password cannot be empty.")
@@ -69,7 +78,7 @@ if st.button("Upload Code"):
         student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
         if not student_data:
             db_execute_query("INSERT INTO students VALUES (?, ?, 0, 0, ?)", (student_id, student_code, passcode))
-            st.success("Code uploaded successfully!")
+            st.success(f"Welcome {student_id}! Code uploaded successfully!")
         else:
             if passcode == student_data[0][4]:
                 db_execute_query("UPDATE students SET code = ? WHERE student_id = ?", (student_code, student_id))

@@ -3,6 +3,7 @@ import random
 import time
 import pandas as pd
 import numpy as np
+import copy
 from db_util import db_execute_query, db_select_query
 from code_util import execute_code
 
@@ -50,6 +51,17 @@ def put_a_stone(board, x, y, stone):
         # print(f"Spot {x},{y} is already occupied. Try another spot.")
         return board, False
 
+
+def exchange_order(org_board):
+    board = copy.deepcopy(org_board)
+    for row in board:
+        for i in range(len(row)):
+            if row[i] == 1:
+                row[i] = 2
+            elif row[i] == 2:
+                row[i] = 1
+    return board
+
 # set global variable to save time and memory
 STONE_INDEX = [(x, y) for x in range(3) for y in range(3)] 
 def random_board(board):
@@ -73,12 +85,15 @@ student_num = len(student_records)
 if student_num < 2:
     st.warning("At least two students participated are required to start the tournament!")
 else:  
+    page_refresh = True
+    ## header two columns
     cols = st.columns(2)
     with cols[0]:
         refresh = st.button("Refresh")
     with cols[1]:
         random_button = st.checkbox('Random Initialized Board') 
-    if refresh or random_button:
+        
+    if page_refresh or refresh or random_button:
         with st.spinner(text='In progress ...'):
             win_results = [[0 for i in range(student_num)] for j in range(student_num)] # n x n
             bar = st.progress(0)
@@ -100,10 +115,17 @@ else:
                         print(f"--------------- Step {step} ---------------")
                         step += 1 
                         # Execute the student 1 code of next_move() function to get their choice
-                        play1_code = f"{player1[1]}\nboard = {board}\nprint(next_move(board))"      
-                        player1_choice, _ = execute_code(play1_code) 
-                        play1_x, play1_y = eval(player1_choice) 
-
+                        play1_code = f"{player1[1]}\nboard = {board}\nprint(next_move(board))"   
+                        try:   
+                            player1_choice, _ = execute_code(play1_code) 
+                            play1_x, play1_y = eval(player1_choice)
+                        except:
+                            print(f"{player1[0]}'s code made an Exception. {player2[0]} wins!")
+                            print(print_board(board)) 
+                            win_results[j][i] = 1
+                            win_results[i][j] = -1
+                            break
+                        
                         board, valid_move = put_a_stone(board, play1_x, play1_y, 1)
                         if not valid_move:
                             print(f"{player1[0]}: {player1_choice}")
@@ -131,9 +153,16 @@ else:
 
                         # ---------------------------------------------------------------------
                         # Execute the student 2 code of next_move() function to get their choice
-                        play2_code = f"{player2[1]}\nboard = {board}\nprint(next_move(board))" 
-                        player2_choice, _ = execute_code(play2_code) 
-                        play2_x, play2_y = eval(player2_choice)
+                        play2_code = f"{player2[1]}\nboard = {exchange_order(board)}\nprint(next_move(board))" 
+                        try:
+                            player2_choice, _ = execute_code(play2_code) 
+                            play2_x, play2_y = eval(player2_choice)
+                        except:
+                            print(f"{player2[0]}'s code made an Exception. {player1[0]} wins!")
+                            print(print_board(board)) 
+                            win_results[i][j] = 1
+                            win_results[j][i] = -1
+                            break
                         
                         board, valid_move = put_a_stone(board, play2_x, play2_y, 2)
                         if not valid_move:

@@ -3,6 +3,7 @@ import random
 import time
 import pandas as pd
 import base64
+import copy
 from db_util import db_execute_query, db_select_query
 from code_util import execute_code
 
@@ -61,6 +62,16 @@ def random_board(board):
              # if initialized winner, roll back 
              if find_winner(board):
                  board[random_stone[0]][random_stone[1]] = 0 
+    return board
+
+def exchange_order(org_board):
+    board = copy.deepcopy(org_board)
+    for row in board:
+        for i in range(len(row)):
+            if row[i] == 1:
+                row[i] = 2
+            elif row[i] == 2:
+                row[i] = 1
     return board
 
 # TODO
@@ -137,8 +148,10 @@ else:
         if not student_data:
             st.error("User does not exist, please upload code first or check student ID!")
         opponent_data = db_select_query('SELECT * FROM students WHERE student_id=?', (opponent_id,)) if opponent_id!="ALL Students" else student_records
+        
         print(student_data[0][0])
         print(len(opponent_data))
+        
         if passcode == student_data[0][4]:
             st.markdown("### Tournament Results")
             # show progress
@@ -165,9 +178,15 @@ else:
                     st.markdown(f"--------------- Step {step} ---------------")
                     step += 1 
                     # Execute the student 1 code of next_move() function to get their choice
-                    play1_code = f"{player1[1]}\nboard = {board}\nprint(next_move(board))"      
-                    player1_choice, _ = execute_code(play1_code) 
-                    play1_x, play1_y = eval(player1_choice) 
+                    play1_code = f"{player1[1]}\nboard = {board}\nprint(next_move(board))"  
+                    try:    
+                        player1_choice, _ = execute_code(play1_code) 
+                        play1_x, play1_y = eval(player1_choice) 
+                    except:
+                        st.write(f"{player1[0]}'s code made an Exception. {player2[0]} wins!")
+                        st.text(print_board(board)) 
+                        lose_num += 1
+                        break
 
                     board, valid_move = put_a_stone(board, play1_x, play1_y, 1)
                     if not valid_move:
@@ -195,9 +214,15 @@ else:
 
                     # ---------------------------------------------------------------------
                     # Execute the student 2 code of next_move() function to get their choice
-                    play2_code = f"{player2[1]}\nboard = {board}\nprint(next_move(board))" 
-                    player2_choice, _ = execute_code(play2_code) 
-                    play2_x, play2_y = eval(player2_choice)
+                    play2_code = f"{player2[1]}\nboard = {exchange_order(board)}\nprint(next_move(board))" 
+                    try:
+                        player2_choice, _ = execute_code(play2_code) 
+                        play2_x, play2_y = eval(player2_choice)
+                    except:
+                        st.write(f"{player2[0]}'s code made an Exception. {player1[0]} wins!")
+                        st.text(print_board(board)) 
+                        win_num += 1
+                        break
                     
                     board, valid_move = put_a_stone(board, play2_x, play2_y, 2)
                     if not valid_move:

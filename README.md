@@ -4,14 +4,27 @@ You can access our Tic-Tac-Toe Tournament platform at [https://tictactoe-john.st
 
 ### Step 1: Upload Code
 
-Implement the `def next_move(board)` function which represents how to generate the next best position to win the game in Python and upload it to our platform. For example,
+:computer: Please enter your student ID, password (initialized for the first time, after that, if you forget your password, please contact admin :cop: ), and complete \"next_move(board)\" strategy that returns x, y (the position of your next piece). In other words, your goal is to let \"Play 1 (You) :partying_face:\" win the game.
+For example,
+
 ```python
-### we will pass board (3x3 list)
-# 0: nothing
-# 1: X (letter X)
-# 2: O (letter O)
-#
-# You need to return x, y
+# Input an board (3x3 list) as function argument,
+# for example:
+# board = [[0, 1, 0], [0, 0, 2], [0, 0, 0]], visualized as:
+#  +---+---+---+
+#  | 0 | 1 | 0 |
+#  +---+---+---+
+#  | 0 | 0 | 2 |
+#  +---+---+---+
+#  | 0 | 0 | 0 |
+#  +---+---+---+
+# 0: Empty
+# 1: Piece of Play 1 (You)
+# 2: Piece of Play 2 (Opponent)
+# You need to complete the following function to return x, y, 
+# which represents the position of next piece you place on the board.
+# Don't place piece in the position that has been occupied, 
+# otherwise, you will lost the game.
 
 def next_move(board):
     import random
@@ -115,3 +128,9 @@ John: 12
 ### Step 3: Reset Database
 After playing for a long time, if you want to clear the database, you can click this button.
 
+## Lunch Project
+```bash
+touch .env
+make 
+make app
+```
