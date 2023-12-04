@@ -115,7 +115,7 @@ else:
                         print(f"--------------- Step {step} ---------------")
                         step += 1 
                         # Execute the student 1 code of next_move() function to get their choice
-                        play1_code = f"{player1[1]}\nboard = {board}\nprint(next_move(board))"   
+                        play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"   
                         try:   
                             player1_choice, _ = execute_code(play1_code) 
                             play1_x, play1_y = eval(player1_choice)
@@ -153,7 +153,7 @@ else:
 
                         # ---------------------------------------------------------------------
                         # Execute the student 2 code of next_move() function to get their choice
-                        play2_code = f"{player2[1]}\nboard = {exchange_order(board)}\nprint(next_move(board))" 
+                        play2_code = f"{player2[1]}\nboard = {exchange_order(copy.deepcopy(board))}\nprint(next_move(board))" 
                         try:
                             player2_choice, _ = execute_code(play2_code) 
                             play2_x, play2_y = eval(player2_choice)

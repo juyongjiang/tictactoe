@@ -15,8 +15,8 @@ def execute_code(code):
                 "content": code  # Pass the code as content
             }
         ],
-        "compile_timeout": 10000,
-        "run_timeout": 3000,
+        "compile_timeout": 100000000, # 10000
+        "run_timeout": 3000000, # 3000
         "compile_memory_limit": -1,
         "run_memory_limit": -1,
     }
@@ -27,6 +27,7 @@ def execute_code(code):
         
     if response.status_code == 200:
         data = response.json()
+        # print(data)
         stdout_output = data.get("run", {}).get("stdout", "").strip()
         stderr_output = data.get("run", {}).get("stderr", "").strip()
 

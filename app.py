@@ -51,17 +51,24 @@ def put_a_stone(board, x, y, stone):
         return board, False
 
 # set global variable to save time and memory
-STONE_INDEX = [(x, y) for x in range(3) for y in range(3)] 
+def random_put(board, stone):
+    while True:
+        x, y = random.randint(0, 2), random.randint(0, 2)
+        if board[x][y] == 0:
+            board[x][y] = stone
+            # if initialized winner, roll back
+            if find_winner(board):
+                board[x][y] = 0
+                continue
+            break
+    return board
+
 def random_board(board):
     random_stone_num = random.randint(0, 9) # random stone number
     if random_stone_num != 0:
-         for i in range(random_stone_num):
-             random_stone = random.choice(STONE_INDEX) # (x, y)
-             random_mark = random.choice([1, 2]) # 1 or 2
-             board[random_stone[0]][random_stone[1]] = random_mark
-             # if initialized winner, roll back 
-             if find_winner(board):
-                 board[random_stone[0]][random_stone[1]] = 0 
+         for i in range(random_stone_num//2):
+             random_put(board, 1)
+             random_put(board, 2) 
     return board
 
 def exchange_order(org_board):
@@ -125,6 +132,10 @@ with cols[1]:
     passcode = st.text_input("Password:", type="password", key="password")
 
 all_student_ids = [record[0] for record in student_records]
+try:
+    all_student_ids.remove(student_id)
+except:
+    st.error("User does not exist, please upload code first or check student ID!")
 prefix_opt = [" ", "ALL Students"]
 opponent_id = st.selectbox("Opponent ID:", prefix_opt + all_student_ids, index=0)
 # for record in student_records:
@@ -134,7 +145,8 @@ if len(student_records) < 2:
     st.warning("At least two students participated are required to start the tournament!")
 else:
     random_button = st.checkbox('Random Initialized Board')
-    if st.button("Start Tournament"):
+    start_tournament = st.button("Start Tournament")
+    if start_tournament:
         if not student_id:
             st.error("Student ID cannot be empty.")
             st.stop()
@@ -147,7 +159,8 @@ else:
         student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
         if not student_data:
             st.error("User does not exist, please upload code first or check student ID!")
-        opponent_data = db_select_query('SELECT * FROM students WHERE student_id=?', (opponent_id,)) if opponent_id!="ALL Students" else student_records
+        student_records_except_self = db_select_query('SELECT * FROM students WHERE student_id!=?', (student_id,))
+        opponent_data = db_select_query('SELECT * FROM students WHERE student_id=?', (opponent_id,)) if opponent_id!="ALL Students" else student_records_except_self
         
         print(student_data[0][0])
         print(len(opponent_data))
@@ -169,7 +182,7 @@ else:
                 # for version 2 
                 if random_button:
                     board = random_board(board)
-                    # st.markdown("**Random Initialized Board:**")
+                    st.markdown("**Random Initialized Board:**")
                     st.text(print_board(board))
 
                 st.markdown("**======> Start Playing <======**")
@@ -178,8 +191,8 @@ else:
                     st.markdown(f"--------------- Step {step} ---------------")
                     step += 1 
                     # Execute the student 1 code of next_move() function to get their choice
-                    play1_code = f"{player1[1]}\nboard = {board}\nprint(next_move(board))"  
-                    try:    
+                    play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"  
+                    try:  
                         player1_choice, _ = execute_code(play1_code) 
                         play1_x, play1_y = eval(player1_choice) 
                     except:
@@ -214,7 +227,7 @@ else:
 
                     # ---------------------------------------------------------------------
                     # Execute the student 2 code of next_move() function to get their choice
-                    play2_code = f"{player2[1]}\nboard = {exchange_order(board)}\nprint(next_move(board))" 
+                    play2_code = f"{player2[1]}\nboard = {exchange_order(copy.deepcopy(board))}\nprint(next_move(board))" 
                     try:
                         player2_choice, _ = execute_code(play2_code) 
                         play2_x, play2_y = eval(player2_choice)

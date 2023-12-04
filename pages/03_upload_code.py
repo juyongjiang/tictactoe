@@ -45,16 +45,19 @@ student_code = st_ace(
 # otherwise, you will lose the game.
 
 def next_move(board):\n
-    return 0, 0
+    x, y = 0, 0
+    return x, y 
 """
 )
 
 basic_code = """
 board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-x, y = next_move(board) # x, y can't be tuple, must be int
+x, y = next_move(board) 
 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
+
+print(next_move(board))
 """
 
 if st.button("Upload Code"):
@@ -68,6 +71,7 @@ if st.button("Upload Code"):
         if not student_code:
             st.error("Student code cannot be empty.")
             st.stop()
+            
         test_output, error = execute_code(student_code + basic_code)
         if error:
             st.error(f"Code execution failed: {error}")
