@@ -42,7 +42,7 @@ student_code = st_ace(
 # You need to complete the following function to return x, y, 
 # which represents the position of next piece you place on the board.
 # Don't place piece in the position that has been occupied, 
-# otherwise, you will lost the game.
+# otherwise, you will lose the game.
 
 def next_move(board):\n
     return 0, 0
