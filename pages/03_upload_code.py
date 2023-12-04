@@ -61,29 +61,30 @@ if st.button("Upload Code"):
     if not student_id:
         st.error("Student ID cannot be empty.")
         st.stop()
-    if student_id not in {'Sung', 'John', 'Jack'} and student_id.isdigit() and len(student_id) == 8:
+    if student_id in {'Sung', 'John', 'Jack'} or (student_id.isdigit() and len(student_id) == 8):
+        if not passcode:
+            st.error("Password cannot be empty.")
+            st.stop()
+        if not student_code:
+            st.error("Student code cannot be empty.")
+            st.stop()
+        test_output, error = execute_code(student_code + basic_code)
+        if error:
+            st.error(f"Code execution failed: {error}")
+        elif test_output is not None:
+            st.success(f"Code execution successful: {test_output}")
+            student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
+            if not student_data:
+                db_execute_query("INSERT INTO students VALUES (?, ?, 0, 0, ?)", (student_id, student_code, passcode))
+                st.success(f"Welcome {student_id}! Code uploaded successfully!")
+            else:
+                if passcode == student_data[0][4]:
+                    db_execute_query("UPDATE students SET code = ? WHERE student_id = ?", (student_code, student_id))
+                    st.success("Code updated successfully!")
+                else:
+                    st.error("Incorrect password, please try again!")
+        else:
+            st.error("Code execution failed. Please check your code.")
+    else:
         st.error("Student ID must be an 8-digit number!")
         st.stop()
-    if not passcode:
-        st.error("Password cannot be empty.")
-        st.stop()
-    if not student_code:
-        st.error("Student code cannot be empty.")
-        st.stop()
-    test_output, error = execute_code(student_code + basic_code)
-    if error:
-        st.error(f"Code execution failed: {error}")
-    elif test_output is not None:
-        st.success(f"Code execution successful: {test_output}")
-        student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
-        if not student_data:
-            db_execute_query("INSERT INTO students VALUES (?, ?, 0, 0, ?)", (student_id, student_code, passcode))
-            st.success(f"Welcome {student_id}! Code uploaded successfully!")
-        else:
-            if passcode == student_data[0][4]:
-                db_execute_query("UPDATE students SET code = ? WHERE student_id = ?", (student_code, student_id))
-                st.success("Code updated successfully!")
-            else:
-                st.error("Incorrect password, please try again!")
-    else:
-        st.error("Code execution failed. Please check your code.")
