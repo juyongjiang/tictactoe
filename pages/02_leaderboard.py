@@ -104,9 +104,6 @@ else:
     # with cols[1]:
     #     random_button = st.checkbox('Random Initialized Board') 
     if refresh: # or random_button:
-        for record in student_records:
-            db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (0, 0, 0, record[0]))  
-        student_records = db_select_query("SELECT * FROM students") 
         if not student_id:
             st.error("Student ID cannot be empty.")
             st.stop()
@@ -118,6 +115,11 @@ else:
             st.stop()
         else:
             st.info("Welcome Admin!")
+        
+        for record in student_records:
+            db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (0, 0, 0, record[0]))  
+        student_records = db_select_query("SELECT * FROM students") 
+        
         student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
         if len(student_data)!=0 and student_id in ADMIN:  
             if passcode == student_data[0][4]:
@@ -228,7 +230,7 @@ else:
                     st.success("Refresh successfully!") 
     
     # leaderboard display
-    student_records = db_select_query("SELECT * FROM students ORDER BY win DESC")
+    student_records = db_select_query("SELECT * FROM students ORDER BY win - lose DESC")
     table_data = []
     for record in student_records:
         table_data.append((record[0], record[2], record[3], record[5]))
