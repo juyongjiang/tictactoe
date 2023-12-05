@@ -127,6 +127,7 @@ else:
                     # win_results = [[0 for i in range(student_num)] for j in range(student_num)] # n x n
                     # win_results = [[0] * student_num] * student_num # n x n
                     bar = st.progress(0)
+                    #################################### player 1 vs player 2 ####################################
                     for i, player_1 in enumerate(student_records):
                         # show progress
                         player1 = list(player_1)
@@ -218,7 +219,101 @@ else:
                                     print(result)
                                     break
                             db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (player1[2], player1[3], player1[5], player1[0]))
-                        bar.progress((i+1)*100//(student_num))
+                        bar.progress((i+1)*100//(2*student_num))
+                    #################################### player 2 vs player 1 ####################################
+                    student_records = db_select_query("SELECT * FROM students") 
+                    for i, player_1 in enumerate(student_records):
+                        # show progress
+                        player2 = list(player_1)
+                        for j, player_2 in enumerate(student_records):
+                            if player2[0] == player_2[0]: # name is the same
+                                continue
+                            board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+                            player1 = list(player_2)
+                            
+                            print("### Round {}-{}: {} (X) vs {} (O)".format(i+1, j+1, player1[0], player2[0]))
+                            # for version 2 
+                            # if random_button:
+                            #     board = random_board(board)
+                            print("**======> Start Playing <======**")
+                            step = 1
+                            while (True):
+                                print(f"---------------{i}-{j} Step {step} ---------------")
+                                step += 1 
+                                # Execute the student 1 code of next_move() function to get their choice
+                                play1_code = f"""{player1[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_1_move = next_move(board_copy)"""  
+                                exec(play1_code) 
+                                if player_1_move is None:
+                                    print(f"{player1[0]}'s code return None! {player2[0]} wins!")
+                                    print(print_board(board)) 
+                                    player2[2] += 1
+                                    break
+                                else: # is not None:
+                                    play1_x, play1_y = player_1_move
+                                    valid_move = put_a_stone(board, play1_x, play1_y, 1)
+                                if not valid_move:
+                                    print(f"{player1[0]} => {player_1_move}")
+                                    print(print_board(board)) 
+                                    print(f"{player1[0]} made an invalid move due to spot is already occupied. {player2[0]} wins!")
+                                    player2[2] += 1
+                                    break
+                                else:
+                                    print(f"{player1[0]} => {player_1_move}")
+                                    print(print_board(board))
+
+                                win_flag = find_winner(board)
+                                if win_flag:
+                                    if "Tie" != win_flag:
+                                        result = f"The winner is {player1[0]}!"
+                                        player2[3] += 1
+                                    else:
+                                        result = f"They are {win_flag}!"
+                                        player2[5] += 1
+                                    print(result, "\n")
+                                    break
+
+                                # ---------------------------------------------------------------------
+                                # Execute the student 2 code of next_move() function to get their choice
+                                play2_code = f"""{player2[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_2_move = next_move(board_copy)"""
+                                exec(play2_code)
+                                if player_2_move is None:
+                                    print(f"{player2[0]}'s code return None! {player1[0]} wins!")
+                                    print(print_board(board)) 
+                                    player2[3] += 1
+                                    # win_results[i][j] = 1
+                                    # win_results[j][i] = -1
+                                    break
+                                else: # is not None:
+                                    play2_x, play2_y = player_2_move
+                                    valid_move = put_a_stone(board, play2_x, play2_y, 2)
+                                if not valid_move:
+                                    print(f"{player2[0]} => {player_2_move}")
+                                    print(print_board(board)) 
+                                    print(f"{player2[0]} made an invalid move due to spot is already occupied. {player1[0]} wins!")
+                                    player2[3] += 1
+                                    # win_results[i][j] = 1
+                                    # win_results[j][i] = -1
+                                    # print(win_results)
+                                    break  
+                                else:
+                                    print(f"{player2[0]} => {player_2_move}")
+                                    print(print_board(board))
+
+                                win_flag = find_winner(board)
+                                if win_flag:
+                                    if "Tie" != win_flag:
+                                        result = f"The winner is {player2[0]}!"
+                                        player2[2] += 1
+                                        # win_results[j][i] = 1
+                                        # win_results[i][j] = -1
+                                        # print(win_results)
+                                    else:
+                                        result = f"They are {win_flag}!"
+                                        player2[5] += 1
+                                    print(result)
+                                    break
+                            db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (player2[2], player2[3], player2[5], player2[0]))
+                        bar.progress((i+1+student_num)*100//(2*student_num))
                         time.sleep(0.1)
                     # Update the database
                     # print(win_results)
