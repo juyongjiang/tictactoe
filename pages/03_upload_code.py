@@ -45,19 +45,49 @@ student_code = st_ace(
 # 2: Piece of Play 2 
 
 def next_move(board):\n
-    x, y = 0, 0
-    return x, y 
+    return 0, 0 
 """
 )
 
 basic_code = """
 board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 x, y = next_move(board) 
-
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
 
+board = [[0, 1, 0], [0, 0, 0], [0, 0, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[0, 1, 2], [1, 2, 0], [1, 0, 2]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[0, 1, 2], [1, 2, 0], [1, 0, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[1, 1, 2], [2, 2, 1], [1, 2, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[1, 1, 2], [2, 2, 1], [1, 0, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[1, 1, 2], [2, 2, 1], [1, 2, 1]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
 print(next_move(board))
+assert next_move(board) is not None
+assert type(next_move(board)) != bool
+assert isinstance(next_move(board), tuple)
 """
 
 if st.button("Upload Code"):

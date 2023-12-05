@@ -131,12 +131,19 @@ else:
                                 print(f"--------------- Step {step} ---------------")
                                 step += 1 
                                 # Execute the student 1 code of next_move() function to get their choice
-                                play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"   
-                                try:   
-                                    player1_choice, _ = execute_code(play1_code) 
+                                play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"    
+                                player1_choice, player1_error = execute_code(play1_code) 
+                                if player1_error:
+                                    print(f"{player1[0]}'s code execution failed: {player1_error}. {player2[0]} wins!")
+                                    print(print_board(board)) 
+                                    win_results[j][i] = 1
+                                    win_results[i][j] = -1
+                                    break
+                                elif player1_choice: # is not None:
+                                    print(eval(player1_choice))
                                     play1_x, play1_y = eval(player1_choice)
-                                except:
-                                    print(f"{player1[0]}'s code made an Exception. {player2[0]} wins!")
+                                else:
+                                    print(f"{player1[0]}'s code return None! {player2[0]} wins!")
                                     print(print_board(board)) 
                                     win_results[j][i] = 1
                                     win_results[i][j] = -1
@@ -170,11 +177,18 @@ else:
                                 # ---------------------------------------------------------------------
                                 # Execute the student 2 code of next_move() function to get their choice
                                 play2_code = f"{player2[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))" 
-                                try:
-                                    player2_choice, _ = execute_code(play2_code) 
+                                player2_choice, player2_error = execute_code(play2_code) 
+                                if player2_error:
+                                    print(f"{player2[0]}'s code execution failed: {player2_error}. {player1[0]} wins!")
+                                    print(print_board(board)) 
+                                    win_results[i][j] = 1
+                                    win_results[j][i] = -1
+                                    break
+                                elif player2_choice: # is not None:
+                                    print(eval(player2_choice))
                                     play2_x, play2_y = eval(player2_choice)
-                                except:
-                                    print(f"{player2[0]}'s code made an Exception. {player1[0]} wins!")
+                                else:
+                                    print(f"{player2[0]}'s code return None! {player1[0]} wins!")
                                     print(print_board(board)) 
                                     win_results[i][j] = 1
                                     win_results[j][i] = -1

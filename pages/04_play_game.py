@@ -132,7 +132,7 @@ with cols[0]:
     student_id = st.text_input("Student ID:", key="student_id")
 with cols[1]:
     passcode = st.text_input("Password:", type="password", key="password")
-
+display_way = st.radio("Game Role:", ("Player 1", "Player 2"), horizontal=True, index=0)
 all_student_ids = [record[0] for record in student_records]
 try:
     if student_id:
@@ -142,6 +142,7 @@ try:
             all_student_ids.insert(0, "ALL Students")
 except:
     st.error("User does not exist, please upload code first or check student ID!")
+    st.stop()
 prefix_opt = [" ",] # "ALL Students"
 opponent_id = st.selectbox("Opponent ID:", prefix_opt + all_student_ids, index=0)
 # for record in student_records:
@@ -150,7 +151,7 @@ opponent_id = st.selectbox("Opponent ID:", prefix_opt + all_student_ids, index=0
 if len(student_records) < 2:
     st.warning("At least two students participated are required to start the tournament!")
 else:
-    random_button = st.checkbox('Random Initialized Board')
+    # random_button = st.checkbox('Random Initialized Board')
     start_tournament = st.button("Start Tournament")
     if start_tournament:
         if not student_id:
@@ -165,6 +166,7 @@ else:
         student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
         if not student_data:
             st.error("User does not exist, please upload code first or check student ID!")
+            st.stop()
         student_records_except_self = db_select_query('SELECT * FROM students WHERE student_id!=?', (student_id,))
         opponent_data = db_select_query('SELECT * FROM students WHERE student_id=?', (opponent_id,)) if opponent_id!="ALL Students" else student_records_except_self
         
@@ -178,18 +180,22 @@ else:
             win_num, lose_num = 0, 0
             for i in range(0, len(opponent_data)):
                 board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-                player1 = list(student_data[0])
-                player2 = list(opponent_data[i])
+                if display_way == "Player 1":
+                    player1 = list(student_data[0])
+                    player2 = list(opponent_data[i])
+                elif display_way == "Player 2":
+                    player1 = list(opponent_data[i])
+                    player2 = list(student_data[0])
                 st.markdown("### Round {}: {} vs {}".format(i, player1[0], player2[0]))
                 print("### Round {}: {} (X) vs {} (O)".format(i, player1[0], player2[0]))
                 bar.progress((i+1)*100//len(opponent_data))
                 time.sleep(0.1)
                 
                 # for version 2 
-                if random_button:
-                    board = random_board(board)
-                    st.markdown("**Random Initialized Board:**")
-                    st.text(print_board(board))
+                # if random_button:
+                #     board = random_board(board)
+                #     st.markdown("**Random Initialized Board:**")
+                #     st.text(print_board(board))
 
                 st.markdown("**======> Start Playing <======**")
                 step = 1
@@ -198,11 +204,17 @@ else:
                     step += 1 
                     # Execute the student 1 code of next_move() function to get their choice
                     play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"  
-                    try:  
-                        player1_choice, _ = execute_code(play1_code) 
+                    player1_choice, player1_error = execute_code(play1_code) 
+                    if player1_error:
+                        st.write(f"{player1[0]}'s code execution failed: {player1_error}. {player2[0]} wins!")
+                        st.text(print_board(board)) 
+                        lose_num += 1
+                        break
+                    elif player1_choice: # is not None:
+                        print(eval(player1_choice))
                         play1_x, play1_y = eval(player1_choice) 
-                    except:
-                        st.write(f"{player1[0]}'s code made an Exception. {player2[0]} wins!")
+                    else:
+                        st.write(f"{player1[0]}'s code return None! {player2[0]} wins!")
                         st.text(print_board(board)) 
                         lose_num += 1
                         break
@@ -210,7 +222,7 @@ else:
                     board, valid_move = put_a_stone(board, play1_x, play1_y, 1)
                     if not valid_move:
                         st.write(f"{player1[0]}: {player1_choice}")
-                        st.error(f"{player1[0]} made an invalid move due to spot is already occupied. \
+                        st.write(f"{player1[0]} made an invalid move due to spot is already occupied. \
                                 {player2[0]} wins!")
                         st.text(print_board(board)) 
                         lose_num += 1
@@ -234,11 +246,18 @@ else:
                     # ---------------------------------------------------------------------
                     # Execute the student 2 code of next_move() function to get their choice
                     play2_code = f"{player2[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))" 
-                    try:
-                        player2_choice, _ = execute_code(play2_code) 
+                    player2_choice, player2_error = execute_code(play2_code) 
+                    if player2_error:
+                        st.write(f"{player2[0]}'s code execution failed: {player2_error}. {player1[0]} wins!")
+                        st.text(print_board(board)) 
+                        win_num += 1
+                        break
+                    elif player2_choice:
+                        # print(type(player2_choice))
+                        print(eval(player2_choice))
                         play2_x, play2_y = eval(player2_choice)
-                    except:
-                        st.write(f"{player2[0]}'s code made an Exception. {player1[0]} wins!")
+                    else:
+                        st.write(f"{player2[0]}'s code return None! {player1[0]} wins!")
                         st.text(print_board(board)) 
                         win_num += 1
                         break
@@ -260,7 +279,7 @@ else:
                         if "Tie" != win_flag:
                             result = f"The winner is {player2[0]}!"
                             lose_num += 1
-                            st.error(result)
+                            st.write(result)
                         else:
                             result = f"They are {win_flag}!"
                             st.warning(result)
@@ -280,3 +299,4 @@ else:
             #     st.write(f"{record[0]}: {record[2]}")
         else:
             st.error("Incorrect password, please try again!")
+            st.stop()
