@@ -7,7 +7,7 @@ from db_util import db_execute_query, db_select_query
 st.title("Upload Code")
 st.info(":computer: Please enter your student ID, password (initialized for the first time, after that, if you forget your password, please contact admin :cop: ), \
     and complete \"next_move(board)\" strategy that returns x, y (the position of your next piece).\
-    In other words, your goal is to let \"Play 1 (You) :partying_face:\" win the game.")
+    In other words, your goal is to win the game :partying_face:.")
 
 cols = st.columns(2)
 with cols[0]:
@@ -19,6 +19,10 @@ with cols[1]:
 # student_id = st.text_input("Student ID:")
 # student_code = st.text_area("Write Code:", height=300)
 # Spawn a new Ace editor
+st.success(""":information_desk_person: Solution Tips:bulb::
+* First of all, you need to decide if you are player 1 (1 piece) or player 2 (2 piece) on input board.
+* Complete the following function to return x, y (the position of your next piece), must be integer.
+* Don't place piece in the position that has been occupied (not 0), otherwise, lose the game.""")
 student_code = st_ace(
     auto_update=True,
     height=500,
@@ -37,12 +41,8 @@ student_code = st_ace(
 #  | 0 | 0 | 0 |
 #  +---+---+---+
 # 0: Empty
-# 1: Piece of Play 1 (You)
-# 2: Piece of Play 2 (Opponent)
-# You need to complete the following function to return x, y, 
-# which represents the position of next piece you place on the board.
-# Don't place piece in the position that has been occupied, 
-# otherwise, you will lose the game.
+# 1: Piece of Play 1 
+# 2: Piece of Play 2 
 
 def next_move(board):\n
     x, y = 0, 0

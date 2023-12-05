@@ -21,7 +21,7 @@ st.warning(":cop: Only admin has permission to view and reset the database:excla
 
 cols = st.columns(2)
 with cols[0]:
-    student_id = st.text_input("Student ID:", key="student_id")
+    student_id = st.text_input("Admin ID:", key="student_id")
 with cols[1]:
     passcode = st.text_input("Password:", type="password", key="password")
 

@@ -7,6 +7,8 @@ import copy
 from db_util import db_execute_query, db_select_query
 from code_util import execute_code
 
+ADMIN = ['John', 'Sung', 'Jack']
+
 
 def find_winner(board):
     for i in range(3):
@@ -82,124 +84,138 @@ student_records = db_select_query("SELECT * FROM students")
 random.shuffle(student_records) # to avoid the effect of game order
 student_num = len(student_records)
 
+cols = st.columns(2)
+with cols[0]:
+    student_id = st.text_input("Admin ID:", key="student_id")
+with cols[1]:
+    passcode = st.text_input("Password:", type="password", key="password")
+
 if student_num < 2:
     st.warning("At least two students participated are required to start the tournament!")
 else:  
-    page_refresh = True
     ## header two columns
     cols = st.columns(2)
     with cols[0]:
-        refresh = st.button("Refresh")
-    with cols[1]:
-        random_button = st.checkbox('Random Initialized Board') 
+        refresh = st.button("Admin Refresh")
+    # with cols[1]:
+    #     random_button = st.checkbox('Random Initialized Board') 
         
-    if page_refresh or refresh or random_button:
-        with st.spinner(text='In progress ...'):
-            win_results = [[0 for i in range(student_num)] for j in range(student_num)] # n x n
-            bar = st.progress(0)
-            for i in range(student_num-1):
-                # show progress
-                player1 = list(student_records[i])
-                for j in range(i+1, student_num):
-                    board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-                    player2 = list(student_records[j])
-                    print("### Round {}: {} (X) vs {} (O)".format(i, player1[0], player2[0]))
-                    
-                    # for version 2 
-                    if random_button:
-                        board = random_board(board)
+    if refresh: # or random_button:
+        if not student_id:
+            st.error("Student ID cannot be empty.")
+            st.stop()
+        if not passcode:
+            st.error("Password cannot be empty.")
+            st.stop() 
+        student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
+        if len(student_data)!=0 and student_id in ADMIN:  
+            if passcode == student_data[0][4]:
+                with st.spinner(text='In progress ...'):
+                    win_results = [[0 for i in range(student_num)] for j in range(student_num)] # n x n
+                    bar = st.progress(0)
+                    for i in range(student_num-1):
+                        # show progress
+                        player1 = list(student_records[i])
+                        for j in range(i+1, student_num):
+                            board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+                            player2 = list(student_records[j])
+                            print("### Round {}: {} (X) vs {} (O)".format(i, player1[0], player2[0]))
+                            
+                            # for version 2 
+                            # if random_button:
+                            #     board = random_board(board)
 
-                    print("**======> Start Playing <======**")
-                    step = 1
-                    while (True):
-                        print(f"--------------- Step {step} ---------------")
-                        step += 1 
-                        # Execute the student 1 code of next_move() function to get their choice
-                        play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"   
-                        try:   
-                            player1_choice, _ = execute_code(play1_code) 
-                            play1_x, play1_y = eval(player1_choice)
-                        except:
-                            print(f"{player1[0]}'s code made an Exception. {player2[0]} wins!")
-                            print(print_board(board)) 
-                            win_results[j][i] = 1
-                            win_results[i][j] = -1
-                            break
-                        
-                        board, valid_move = put_a_stone(board, play1_x, play1_y, 1)
-                        if not valid_move:
-                            print(f"{player1[0]}: {player1_choice}")
-                            print(f"{player1[0]} made an invalid move due to spot is already occupied. {player2[0]} wins!")
-                            print(print_board(board)) 
-                            win_results[j][i] = 1
-                            win_results[i][j] = -1
-                            # print(win_results)
-                            break
+                            print("**======> Start Playing <======**")
+                            step = 1
+                            while (True):
+                                print(f"--------------- Step {step} ---------------")
+                                step += 1 
+                                # Execute the student 1 code of next_move() function to get their choice
+                                play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"   
+                                try:   
+                                    player1_choice, _ = execute_code(play1_code) 
+                                    play1_x, play1_y = eval(player1_choice)
+                                except:
+                                    print(f"{player1[0]}'s code made an Exception. {player2[0]} wins!")
+                                    print(print_board(board)) 
+                                    win_results[j][i] = 1
+                                    win_results[i][j] = -1
+                                    break
+                                
+                                board, valid_move = put_a_stone(board, play1_x, play1_y, 1)
+                                if not valid_move:
+                                    print(f"{player1[0]}: {player1_choice}")
+                                    print(f"{player1[0]} made an invalid move due to spot is already occupied. {player2[0]} wins!")
+                                    print(print_board(board)) 
+                                    win_results[j][i] = 1
+                                    win_results[i][j] = -1
+                                    # print(win_results)
+                                    break
 
-                        print(f"{player1[0]}: {player1_choice}")
-                        print(print_board(board))
+                                print(f"{player1[0]}: {player1_choice}")
+                                print(print_board(board))
 
-                        win_flag = find_winner(board)
-                        if win_flag:
-                            if "Tie" != win_flag:
-                                result = f"The winner is {player1[0]}!"
-                                win_results[i][j] = 1
-                                win_results[j][i] = -1
-                                # print(win_results)
-                            else:
-                                result = f"They are {win_flag}!"
-                            print(result, "\n")
-                            break
+                                win_flag = find_winner(board)
+                                if win_flag:
+                                    if "Tie" != win_flag:
+                                        result = f"The winner is {player1[0]}!"
+                                        win_results[i][j] = 1
+                                        win_results[j][i] = -1
+                                        # print(win_results)
+                                    else:
+                                        result = f"They are {win_flag}!"
+                                    print(result, "\n")
+                                    break
 
-                        # ---------------------------------------------------------------------
-                        # Execute the student 2 code of next_move() function to get their choice
-                        play2_code = f"{player2[1]}\nboard = {exchange_order(copy.deepcopy(board))}\nprint(next_move(board))" 
-                        try:
-                            player2_choice, _ = execute_code(play2_code) 
-                            play2_x, play2_y = eval(player2_choice)
-                        except:
-                            print(f"{player2[0]}'s code made an Exception. {player1[0]} wins!")
-                            print(print_board(board)) 
-                            win_results[i][j] = 1
-                            win_results[j][i] = -1
-                            break
-                        
-                        board, valid_move = put_a_stone(board, play2_x, play2_y, 2)
-                        if not valid_move:
-                            print(f"{player2[0]}: {player2_choice}")
-                            print(f"{player2[0]} made an invalid move due to spot is already occupied. {player1[0]} wins!")
-                            print(print_board(board)) 
-                            win_results[i][j] = 1
-                            win_results[j][i] = -1
-                            # print(win_results)
-                            break  
+                                # ---------------------------------------------------------------------
+                                # Execute the student 2 code of next_move() function to get their choice
+                                play2_code = f"{player2[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))" 
+                                try:
+                                    player2_choice, _ = execute_code(play2_code) 
+                                    play2_x, play2_y = eval(player2_choice)
+                                except:
+                                    print(f"{player2[0]}'s code made an Exception. {player1[0]} wins!")
+                                    print(print_board(board)) 
+                                    win_results[i][j] = 1
+                                    win_results[j][i] = -1
+                                    break
+                                
+                                board, valid_move = put_a_stone(board, play2_x, play2_y, 2)
+                                if not valid_move:
+                                    print(f"{player2[0]}: {player2_choice}")
+                                    print(f"{player2[0]} made an invalid move due to spot is already occupied. {player1[0]} wins!")
+                                    print(print_board(board)) 
+                                    win_results[i][j] = 1
+                                    win_results[j][i] = -1
+                                    # print(win_results)
+                                    break  
 
-                        print(f"{player2[0]}: {player2_choice}")
-                        print(print_board(board))
+                                print(f"{player2[0]}: {player2_choice}")
+                                print(print_board(board))
 
-                        win_flag = find_winner(board)
-                        if win_flag:
-                            if "Tie" != win_flag:
-                                result = f"The winner is {player2[0]}!"
-                                win_results[j][i] = 1
-                                win_results[i][j] = -1
-                                # print(win_results)
-                            else:
-                                result = f"They are {win_flag}!"
-                            print(result)
-                            break
+                                win_flag = find_winner(board)
+                                if win_flag:
+                                    if "Tie" != win_flag:
+                                        result = f"The winner is {player2[0]}!"
+                                        win_results[j][i] = 1
+                                        win_results[i][j] = -1
+                                        # print(win_results)
+                                    else:
+                                        result = f"They are {win_flag}!"
+                                    print(result)
+                                    break
 
-                bar.progress((i+1)*100//(student_num-1))
-                time.sleep(0.1)
-            # Update the database
-            for k in range(student_num):
-                win_num = win_results[k].count(1)
-                lose_num = win_results[k].count(-1)
-                student = student_records[k]
-                db_execute_query("UPDATE students SET win = ?, lose = ? WHERE student_id = ?", (win_num, lose_num, student[0])) 
-            st.success("Refresh successfully!") 
+                        bar.progress((i+1)*100//(student_num-1))
+                        time.sleep(0.1)
+                    # Update the database
+                    for k in range(student_num):
+                        win_num = win_results[k].count(1)
+                        lose_num = win_results[k].count(-1)
+                        student = student_records[k]
+                        db_execute_query("UPDATE students SET win = ?, lose = ? WHERE student_id = ?", (win_num, lose_num, student[0])) 
+                    st.success("Refresh successfully!") 
     
-    # leadboard display
+    # leaderboard display
     student_records = db_select_query("SELECT * FROM students ORDER BY win DESC")
     table_data = []
     for record in student_records:
