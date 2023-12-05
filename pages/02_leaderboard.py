@@ -103,11 +103,10 @@ else:
         
     # with cols[1]:
     #     random_button = st.checkbox('Random Initialized Board') 
-    for record in student_records:
-        db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (0, 0, 0, record[0]))  
-    student_records = db_select_query("SELECT * FROM students") 
-    
     if refresh: # or random_button:
+        for record in student_records:
+            db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (0, 0, 0, record[0]))  
+        student_records = db_select_query("SELECT * FROM students") 
         if not student_id:
             st.error("Student ID cannot be empty.")
             st.stop()

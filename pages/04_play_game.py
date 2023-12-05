@@ -139,11 +139,11 @@ try:
         all_student_ids.remove(student_id)
         if student_id in ADMIN:
             st.info("Welcome Admin!")
-            all_student_ids.insert(0, "ALL Students")
+            # all_student_ids.insert(0, "ALL Students")
 except:
     st.error("User does not exist, please upload code first or check student ID!")
     st.stop()
-prefix_opt = [" ",] # "ALL Students"
+prefix_opt = [" ", "ALL Students"] # "ALL Students"
 opponent_id = st.selectbox("Opponent ID:", prefix_opt + all_student_ids, index=0)
 # for record in student_records:
 #     st.markdown("- {}".format(record[0]))  # record[0] is student_id
