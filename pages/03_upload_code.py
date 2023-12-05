@@ -109,7 +109,7 @@ if st.button("Upload Code"):
             st.success(f"Code execution successful: {test_output}")
             student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
             if not student_data:
-                db_execute_query("INSERT INTO students VALUES (?, ?, 0, 0, ?)", (student_id, student_code, passcode))
+                db_execute_query("INSERT INTO students VALUES (?, ?, 0, 0, ?, 0)", (student_id, student_code, passcode))
                 st.success(f"Welcome {student_id}! Code uploaded successfully!")
             else:
                 if passcode == student_data[0][4]:

@@ -47,10 +47,10 @@ def print_board(board):
 def put_a_stone(board, x, y, stone):
     if board[x][y] == 0:
         board[x][y] = stone
-        return board, True
+        return True
     else:
-        print(f"Spot {x},{y} is already occupied. Try another spot.")
-        return board, False
+        # print(f"Spot {x},{y} is already occupied. Try another spot.")
+        return False
 
 # set global variable to save time and memory
 def random_put(board, stone):
@@ -178,16 +178,17 @@ else:
             # show progress
             bar = st.progress(0)
             win_num, lose_num = 0, 0
-            for i in range(0, len(opponent_data)):
+            tie_num = 0
+            for i, opponent in enumerate(opponent_data):
                 board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
                 if display_way == "Player 1":
                     player1 = list(student_data[0])
-                    player2 = list(opponent_data[i])
+                    player2 = list(opponent)
                 elif display_way == "Player 2":
-                    player1 = list(opponent_data[i])
+                    player1 = list(opponent)
                     player2 = list(student_data[0])
-                st.markdown("### Round {}: {} vs {}".format(i, player1[0], player2[0]))
-                print("### Round {}: {} (X) vs {} (O)".format(i, player1[0], player2[0]))
+                st.markdown("### Round {}: {} vs {}".format(i+1, player1[0], player2[0]))
+                print("### Round {}: {} (X) vs {} (O)".format(i+1, player1[0], player2[0]))
                 bar.progress((i+1)*100//len(opponent_data))
                 time.sleep(0.1)
                 
@@ -200,88 +201,81 @@ else:
                 st.markdown("**======> Start Playing <======**")
                 step = 1
                 while(True):
-                    st.markdown(f"--------------- Step {step} ---------------")
+                    st.markdown(f"---------------{i+1} Step {step} ---------------")
                     step += 1 
                     # Execute the student 1 code of next_move() function to get their choice
-                    play1_code = f"{player1[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))"  
-                    player1_choice, player1_error = execute_code(play1_code) 
-                    if player1_error:
-                        st.write(f"{player1[0]}'s code execution failed: {player1_error}. {player2[0]} wins!")
+                    play1_code = f"""{player1[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_1_move = next_move(board_copy)""" 
+                    exec(play1_code) 
+                    if player_1_move is None:
+                        st.warning(f"{player1[0]}'s code return None! {player2[0]} wins!")
                         st.text(print_board(board)) 
                         lose_num += 1
                         break
-                    elif player1_choice: # is not None:
-                        print(eval(player1_choice))
-                        play1_x, play1_y = eval(player1_choice) 
                     else:
-                        st.write(f"{player1[0]}'s code return None! {player2[0]} wins!")
-                        st.text(print_board(board)) 
-                        lose_num += 1
-                        break
-
-                    board, valid_move = put_a_stone(board, play1_x, play1_y, 1)
+                        play1_x, play1_y = player_1_move
+                        valid_move = put_a_stone(board, play1_x, play1_y, 1)
                     if not valid_move:
-                        st.write(f"{player1[0]}: {player1_choice}")
-                        st.write(f"{player1[0]} made an invalid move due to spot is already occupied. \
-                                {player2[0]} wins!")
+                        st.write(f":cop: {player1[0]} (X) => {player_1_move} :x:")
                         st.text(print_board(board)) 
+                        st.warning(f"{player1[0]} made an invalid move due to spot is already occupied. \
+                                {player2[0]} wins!")
+                        if display_way == "Player 2":
+                            st.balloons()
                         lose_num += 1
                         break
-                    st.write(f"{player1[0]}: {player1_choice}")
+                    st.write(f":cop: {player1[0]} (X) => {player_1_move} :white_check_mark:")
                     st.text(print_board(board))
                     
                     win_flag = find_winner(board)
                     if win_flag:
                         if "Tie" != win_flag:
-                            result = f"The winner is {player1[0]}!"
-                            st.balloons()
+                            result = f"The winner is :cop: {player1[0]}!"
+                            if display_way == "Player 1":
+                                st.balloons()
                             win_num += 1
                             st.success(result)
                         else:
-                            result = f"They are {win_flag}!"
+                            result = f"They are :repeat: {win_flag}!"
+                            tie_num += 1
                             st.warning(result)
                         print(result, "\n")
                         break
 
                     # ---------------------------------------------------------------------
                     # Execute the student 2 code of next_move() function to get their choice
-                    play2_code = f"{player2[1]}\nboard = {copy.deepcopy(board)}\nprint(next_move(board))" 
-                    player2_choice, player2_error = execute_code(play2_code) 
-                    if player2_error:
-                        st.write(f"{player2[0]}'s code execution failed: {player2_error}. {player1[0]} wins!")
+                    play2_code = f"""{player2[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_2_move = next_move(board_copy)"""
+                    exec(play2_code)   
+                    if player_2_move is None:
+                        st.success(f"{player2[0]}'s code return None! {player1[0]} wins!")
                         st.text(print_board(board)) 
                         win_num += 1
                         break
-                    elif player2_choice:
-                        # print(type(player2_choice))
-                        print(eval(player2_choice))
-                        play2_x, play2_y = eval(player2_choice)
                     else:
-                        st.write(f"{player2[0]}'s code return None! {player1[0]} wins!")
-                        st.text(print_board(board)) 
-                        win_num += 1
-                        break
-                    
-                    board, valid_move = put_a_stone(board, play2_x, play2_y, 2)
+                        play2_x, play2_y = player_2_move
+                        valid_move = put_a_stone(board, play2_x, play2_y, 2)
                     if not valid_move:
-                        st.write(f"{player2[0]}: {player2_choice}")
+                        st.write(f":ninja: {player2[0]} (O) => {player_2_move} :x:")
+                        st.text(print_board(board)) 
                         st.success(f"{player2[0]} made an invalid move due to spot is already occupied. \
                                 {player1[0]} wins!")
-                        st.text(print_board(board)) 
-                        st.balloons()
+                        if display_way == "Player 1":
+                            st.balloons()
                         win_num += 1
                         break  
-                    st.write(f"{player2[0]}: {player2_choice}")
+                    st.write(f":ninja: {player2[0]} (O) => {player_2_move} :white_check_mark:")
                     st.text(print_board(board))
 
                     win_flag = find_winner(board)
                     if win_flag:
                         if "Tie" != win_flag:
-                            result = f"The winner is {player2[0]}!"
+                            result = f"The winner is :ninja: {player2[0]}!"
+                            if display_way == "Player 2":
+                                st.balloons()
                             lose_num += 1
                             st.write(result)
                         else:
-                            result = f"They are {win_flag}!"
+                            result = f"They are :repeat: {win_flag}!"
+                            tie_num += 1
                             st.warning(result)
                         print(result, "\n")
                         break
@@ -289,7 +283,11 @@ else:
             # Update the database
             # db_execute_query("UPDATE students SET win = ? lose = ? WHERE student_id = ?", (win_num, lose_num, student_data[0][0]))  
             st.markdown("### Tournament Standings")
-            win_lose_result = pd.DataFrame([(student_data[0][0], win_num, lose_num),], columns=("Student ID", "Win", "Lose"), index=[1])
+            if display_way == "Player 2":
+                temp = lose_num
+                lose_num = win_num 
+                win_num = temp
+            win_lose_result = pd.DataFrame([(student_data[0][0], len(opponent_data), win_num, lose_num, tie_num),], columns=("Student ID", "Opponent Num", "Win", "Lose", "Tie"), index=[1])
             # win_lose_result = win_lose_result.rename_axis('Rank')
             # win_lose_result.index.name = "Index"
             # win_lose_result = win_lose_result.set_index("Student ID")
