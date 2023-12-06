@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import ast
-import astor
 from db_util import db_select_query, db_execute_query
 
 admin = ['John', 'Sung', 'Jack']

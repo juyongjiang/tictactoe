@@ -1,6 +1,2 @@
 streamlit
-tinydb
-openai
-streamlit-ace
-astor
 
