@@ -5,4 +5,5 @@ pdfs
 *.pdf
 *.png
 upstage/
+export_db.txt
 student_database.json

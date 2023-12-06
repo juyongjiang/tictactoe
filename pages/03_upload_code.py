@@ -105,7 +105,11 @@ if st.button("Upload Code"):
         test_output, error = execute_code(student_code + basic_code)
         if error:
             st.error(f"Code execution failed: {error}")
+            st.stop()
         elif test_output is not None:
+            if "Invalid input. Please try again." in test_output:
+                st.error("Code execution failed. Don't use standard input.")
+                st.stop()
             st.success(f"Code execution successful: {test_output}")
             student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
             if not student_data:
@@ -117,8 +121,10 @@ if st.button("Upload Code"):
                     st.success("Code updated successfully!")
                 else:
                     st.error("Incorrect password, please try again!")
+                    st.stop()
         else:
             st.error("Code execution failed. Please check your code.")
+            st.stop()
     else:
         st.error("Student ID must be an 8-digit number!")
         st.stop()

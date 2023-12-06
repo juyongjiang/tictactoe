@@ -27,6 +27,7 @@ def execute_code(code):
         
     if response.status_code == 200:
         data = response.json()
+        print(data)
         # print(data)
         stdout_output = data.get("run", {}).get("stdout", "").strip()
         stderr_output = data.get("run", {}).get("stderr", "").strip()

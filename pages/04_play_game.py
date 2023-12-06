@@ -139,11 +139,11 @@ try:
         all_student_ids.remove(student_id)
         if student_id in ADMIN:
             st.info("Welcome Admin!")
-            # all_student_ids.insert(0, "ALL Students")
+            all_student_ids.insert(0, "ALL Students")
 except:
     st.error("User does not exist, please upload code first or check student ID!")
     st.stop()
-prefix_opt = [" ", "ALL Students"] # "ALL Students"
+prefix_opt = [" ",] # "ALL Students"
 opponent_id = st.selectbox("Opponent ID:", prefix_opt + all_student_ids, index=0)
 # for record in student_records:
 #     st.markdown("- {}".format(record[0]))  # record[0] is student_id
@@ -204,7 +204,8 @@ else:
                     st.markdown(f"---------------{i+1} Step {step} ---------------")
                     step += 1 
                     # Execute the student 1 code of next_move() function to get their choice
-                    play1_code = f"""{player1[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_1_move = next_move(board_copy)""" 
+                    play1_board = copy.deepcopy(board)
+                    play1_code = f"""{player1[1]}\nboard_copy = {play1_board}\nplayer_1_move = next_move(board_copy)""" 
                     exec(play1_code) 
                     if player_1_move is None:
                         st.warning(f"{player1[0]}'s code return None! {player2[0]} wins!")
@@ -243,7 +244,8 @@ else:
 
                     # ---------------------------------------------------------------------
                     # Execute the student 2 code of next_move() function to get their choice
-                    play2_code = f"""{player2[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_2_move = next_move(board_copy)"""
+                    play2_board = copy.deepcopy(board)
+                    play2_code = f"""{player2[1]}\nboard_copy = {play2_board}\nplayer_2_move = next_move(board_copy)"""
                     exec(play2_code)   
                     if player_2_move is None:
                         st.success(f"{player2[0]}'s code return None! {player1[0]} wins!")

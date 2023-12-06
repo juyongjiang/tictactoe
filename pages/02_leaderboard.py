@@ -147,7 +147,8 @@ else:
                                 print(f"---------------{i}-{j} Step {step} ---------------")
                                 step += 1 
                                 # Execute the student 1 code of next_move() function to get their choice
-                                play1_code = f"""{player1[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_1_move = next_move(board_copy)"""  
+                                play1_board = copy.deepcopy(board)
+                                play1_code = f"""{player1[1]}\nboard_copy = {play1_board}\nplayer_1_move = next_move(board_copy)"""  
                                 exec(play1_code) 
                                 if player_1_move is None:
                                     print(f"{player1[0]}'s code return None! {player2[0]} wins!")
@@ -180,7 +181,8 @@ else:
 
                                 # ---------------------------------------------------------------------
                                 # Execute the student 2 code of next_move() function to get their choice
-                                play2_code = f"""{player2[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_2_move = next_move(board_copy)"""
+                                play2_board = copy.deepcopy(board)
+                                play2_code = f"""{player2[1]}\nboard_copy = {play2_board}\nplayer_2_move = next_move(board_copy)"""
                                 exec(play2_code)
                                 if player_2_move is None:
                                     print(f"{player2[0]}'s code return None! {player1[0]} wins!")
@@ -241,7 +243,8 @@ else:
                                 print(f"---------------{i}-{j} Step {step} ---------------")
                                 step += 1 
                                 # Execute the student 1 code of next_move() function to get their choice
-                                play1_code = f"""{player1[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_1_move = next_move(board_copy)"""  
+                                play1_board = copy.deepcopy(board)
+                                play1_code = f"""{player1[1]}\nboard_copy = {play1_board}\nplayer_1_move = next_move(board_copy)"""  
                                 exec(play1_code) 
                                 if player_1_move is None:
                                     print(f"{player1[0]}'s code return None! {player2[0]} wins!")
@@ -274,7 +277,8 @@ else:
 
                                 # ---------------------------------------------------------------------
                                 # Execute the student 2 code of next_move() function to get their choice
-                                play2_code = f"""{player2[1]}\nboard_copy = {copy.deepcopy(board)}\nplayer_2_move = next_move(board_copy)"""
+                                play2_board = copy.deepcopy(board)
+                                play2_code = f"""{player2[1]}\nboard_copy = {play2_board}\nplayer_2_move = next_move(board_copy)"""
                                 exec(play2_code)
                                 if player_2_move is None:
                                     print(f"{player2[0]}'s code return None! {player1[0]} wins!")
