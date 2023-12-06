@@ -15,6 +15,7 @@ touch .env
 make 
 make app
 ```
+Then, the game webpage will be shown in your browser automatically. 
 
 ## Play Tic-Tac-Toe Game
 ### Step 1: Upload Code
