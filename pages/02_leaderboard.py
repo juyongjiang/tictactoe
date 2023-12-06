@@ -116,9 +116,9 @@ else:
         else:
             st.info("Welcome Admin!")
         
-        for record in student_records:
-            db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (0, 0, 0, record[0]))  
-        student_records = db_select_query("SELECT * FROM students") 
+        # for record in student_records:
+        #     db_execute_query("UPDATE students SET win = ?, lose = ?, tie = ? WHERE student_id = ?", (0, 0, 0, record[0]))  
+        # student_records = db_select_query("SELECT * FROM students") 
         
         student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
         if len(student_data)!=0 and student_id in ADMIN:  
@@ -131,6 +131,7 @@ else:
                     for i, player_1 in enumerate(student_records):
                         # show progress
                         player1 = list(player_1)
+                        player1[2], player1[3], player1[5] = 0, 0, 0
                         for j, player_2 in enumerate(student_records):
                             if player1[0] == player_2[0]: # name is the same
                                 continue

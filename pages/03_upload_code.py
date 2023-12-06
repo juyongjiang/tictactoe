@@ -52,31 +52,37 @@ def next_move(board):\n
 basic_code = """
 board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 x, y = next_move(board) 
+test_1 = next_move(board) 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
 
 board = [[0, 1, 0], [0, 0, 0], [0, 0, 0]]
 x, y = next_move(board) 
+test_2 = next_move(board) 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
 
 board = [[0, 1, 2], [1, 2, 0], [1, 0, 2]]
 x, y = next_move(board) 
+test_3 = next_move(board) 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
 
 board = [[0, 1, 2], [1, 2, 0], [1, 0, 0]]
 x, y = next_move(board) 
+test_4 = next_move(board) 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
 
 board = [[1, 1, 2], [2, 2, 1], [1, 2, 0]]
 x, y = next_move(board) 
+test_5 = next_move(board) 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
 
 board = [[1, 1, 2], [2, 2, 1], [1, 0, 0]]
 x, y = next_move(board) 
+test_6 = next_move(board) 
 assert x >= 0 and x <= 2
 assert y >= 0 and y <= 2
 
@@ -101,16 +107,44 @@ if st.button("Upload Code"):
         if not student_code:
             st.error("Student code cannot be empty.")
             st.stop()
-            
-        test_output, error = execute_code(student_code + basic_code)
-        if error:
-            st.error(f"Code execution failed: {error}")
-            st.stop()
-        elif test_output is not None:
-            if "Invalid input. Please try again." in test_output:
+
+        import textwrap
+        code_string = textwrap.indent(student_code + basic_code, '    ')  # 4 spaces
+        process_header = f"""
+        from multiprocessing import Process
+        import time
+        import os
+        import streamlit as st
+
+        def long_running_operation():
+            # Replace with your actual code
+            {code_string}
+
+        if __name__ == "__main__":
+            # Start the operation in a separate process
+            process = Process(target=long_running_operation)
+            process.start()
+
+            # Wait for 3 seconds
+            time.sleep(3)
+
+            # If process is still running after 10 seconds, terminate it
+            if process.is_alive():
+                print("The operation is taking too long, terminating.")
+                st.error("The operation is taking too long, terminating.")
+                st.stop()
+                process.terminate()
+                process.join()
+        """   
+        # exec(process_header)     
+        exec(student_code + basic_code)
+        if test_1 and test_2 and test_3 and test_4 and test_5 and test_6:
+            if "Invalid input. Please try again." in (student_code + basic_code):
                 st.error("Code execution failed. Don't use standard input.")
                 st.stop()
-            st.success(f"Code execution successful: {test_output}")
+            st.success(f"Code execution successful: {test_1}-{test_2}-{test_3}-{test_4}-{test_5}-{test_6}")
+            
+            # save into database
             student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
             if not student_data:
                 db_execute_query("INSERT INTO students VALUES (?, ?, 0, 0, ?, 0)", (student_id, student_code, passcode))
@@ -123,8 +157,32 @@ if st.button("Upload Code"):
                     st.error("Incorrect password, please try again!")
                     st.stop()
         else:
-            st.error("Code execution failed. Please check your code.")
+            st.error(f"Code execution failed! Please pass all unit tests first.")
             st.stop()
+        
+        # test_output, error = execute_code(student_code + basic_code)
+        # if error:
+        #     st.error(f"Code execution failed: {error}")
+        #     st.stop()
+        # elif test_output is not None:
+        #     if "Invalid input. Please try again." in test_output:
+        #         st.error("Code execution failed. Don't use standard input.")
+        #         st.stop()
+        #     st.success(f"Code execution successful: {test_output}")
+        #     student_data = db_select_query('SELECT * FROM students WHERE student_id=?', (student_id,)) # return a list
+        #     if not student_data:
+        #         db_execute_query("INSERT INTO students VALUES (?, ?, 0, 0, ?, 0)", (student_id, student_code, passcode))
+        #         st.success(f"Welcome {student_id}! Code uploaded successfully!")
+        #     else:
+        #         if passcode == student_data[0][4]:
+        #             db_execute_query("UPDATE students SET code = ? WHERE student_id = ?", (student_code, student_id))
+        #             st.success("Code updated successfully!")
+        #         else:
+        #             st.error("Incorrect password, please try again!")
+        #             st.stop()
+        # else:
+        #     st.error("Code execution failed. Please check your code.")
+        #     st.stop()
     else:
         st.error("Student ID must be an 8-digit number!")
         st.stop()
