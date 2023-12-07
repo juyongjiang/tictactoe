@@ -17,7 +17,7 @@ make
 make app
 ```
 
-2. **Windows System**
+2. **Windows / Linux / Mac OS System**
 ```bash
 conda create -n ttt_game python
 conda activate ttt_game
