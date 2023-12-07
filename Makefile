@@ -16,8 +16,8 @@ init: $(VENV)/bin/activate
 app: $(VENV)/bin/activate
 	$(STREAMLIT) run app.py --server.port 2023 
 
-gpt: $(VENV)/bin/activate
-	$(PYTHON) gpt_util.py
+# gpt: $(VENV)/bin/activate
+# 	$(PYTHON) gpt_util.py
 
 clean:
 	rm -rf __pycache__

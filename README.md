@@ -9,11 +9,20 @@ git clone git@github.com:juyongjiang/tictactoe.git
 ```
 or `Click Download ZIP`
 
-### Lunch Streamlit APP
+### Lunch Streamlit APP 
+1. Linux / Mac OS System
 ```bash
 touch .env
 make 
 make app
+```
+
+2. Windows System
+```bash
+conda create -n ttt_game python
+conda activate ttt_game
+pip install -r requirements.txt
+streamlit run app.py --server.port 2023 
 ```
 Then, the game webpage will be shown in your browser automatically. 
 
