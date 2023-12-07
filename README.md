@@ -10,14 +10,14 @@ git clone git@github.com:juyongjiang/tictactoe.git
 or `Click Download ZIP`
 
 ### Lunch Streamlit APP 
-1. Linux / Mac OS System
+1. **Linux / Mac OS System**
 ```bash
 touch .env
 make 
 make app
 ```
 
-2. Windows System
+2. **Windows System**
 ```bash
 conda create -n ttt_game python
 conda activate ttt_game
